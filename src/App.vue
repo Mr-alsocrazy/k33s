@@ -30,12 +30,8 @@ export default {
   },
   methods: {
     handleSelect(index) {
-      let replace = true
-      if (this.CurrentActive == index)
-        replace = false
       this.CurrentActive = index
-      if (replace)
-        this.$router.replace(index)
+      this.$router.replace(index)
     }
   }
 }

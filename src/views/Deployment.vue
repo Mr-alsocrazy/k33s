@@ -29,9 +29,8 @@
               </el-table-column>
             </el-table>
           </div>
-          <el-dialog tile="创建新镜像" :visible.sync="addDeployment">
+          <el-dialog tile="创建新负载" :visible.sync="addDeployment">
             <el-form :model="form">
-              
               <el-form-item label="名称">
                 <el-input v-model="form.name" placeholder="名称"/>
               </el-form-item>
@@ -47,44 +46,9 @@
               <el-form-item label="环境变量">
                 <el-input v-model="form.env" placeholder="环境变量"/>
               </el-form-item>
-              <el-form-item label="标签">
-                <el-form-item>
-                  <el-button type="primary" @click="addItem">Add +</el-button>
-                </el-form-item>
-                <div v-for="(input, index) in inputArray" :key="index">
-                  <el-input v-model="form.tag[input].tagName" placeholder="标签名称"/>
-                  <br>
-                  <el-input v-model="form.tag[input].tagContent" placeholder="标签内容"/>
-                  <br>
-                  <el-button @click="removeItem(index)" type="danger">删除</el-button>
-                </div>
-              </el-form-item>
-              <el-form-item>
-                <el-button type="primary" @click="createDeployment">创建</el-button>
-                <el-button @click="cancel">取消</el-button>
-              </el-form-item>
-            </el-form>
-          </el-dialog>
-          <el-dialog tile="创建新镜像" :visible.sync="addDeployment">
-            <el-form :model="form">
-              <el-form-item>
+              <el-form-item label="添加标签">
                 <el-button type="primary" @click="addItem">Add +</el-button>
               </el-form-item>
-              <el-form-item label="名称">
-                <el-input v-model="form.name" placeholder="名称"/>
-              </el-form-item>
-              <el-form-item label="副本数量">
-                <el-input-number v-model="form.replicas" placeholder="副本数量"/>
-              </el-form-item>
-              <el-form-item label="镜像名称">
-                <el-input v-model="form.image" placeholder="镜像名称"/>
-              </el-form-item>
-              <el-form-item label="端口">
-                <el-input v-model="form.port" placeholder="端口"/>
-              </el-form-item>
-              <el-form-item label="环境变量">
-                <el-input v-model="form.env" placeholder="环境变量"/>
-              </el-form-item>
               <el-form-item label="标签">
                 <div v-for="(input, index) in inputArray" :key="index">
                   <el-input v-model="form.tag[input].tagName" placeholder="标签名称"/>
@@ -100,11 +64,8 @@
               </el-form-item>
             </el-form>
           </el-dialog>
-          <el-dialog tile="修改镜像" :visible.sync="modify">
+          <el-dialog tile="修改负载" :visible.sync="modify">
             <el-form :model="m_form">
-              <el-form-item>
-                <el-button type="primary" @click="addItem">Add +</el-button>
-              </el-form-item>
               <el-form-item label="名称">
                 <el-input v-model="m_form.name" placeholder="名称"/>
               </el-form-item>
@@ -120,13 +81,16 @@
               <el-form-item label="环境变量">
                 <el-input v-model="m_form.env" placeholder="环境变量"/>
               </el-form-item>
+              <el-form-item label="添加标签">
+                <el-button type="primary" @click="m_addItem">Add +</el-button>
+              </el-form-item>
               <el-form-item label="标签">
-                <div v-for="(input, index) in inputArray" :key="index">
+                <div v-for="(input, index) in m_inputArray" :key="index">
                   <el-input v-model="m_form.tag[input].tagName" placeholder="标签名称"/>
                   <br>
                   <el-input v-model="m_form.tag[input].tagContent" placeholder="标签内容"/>
                   <br>
-                  <el-button @click="removeItem(index)" type="danger">删除</el-button>
+                  <el-button @click="m_removeItem(index)" type="danger">删除</el-button>
                 </div>
               </el-form-item>
               <el-form-item>
@@ -165,6 +129,7 @@ export default {
         tag: {}
       },
       inputArray: [],
+      m_inputArray: []
     }
   },
   methods: {
@@ -177,6 +142,16 @@ export default {
     removeItem(index) {
       let removeInputName = this.inputArray.splice(index, 1)[0]
       delete this.form.tag[removeInputName]
+    },
+    m_addItem() {
+      let curIndex = this.m_inputArray.length
+      let inputName = `index_${curIndex}`
+      this.$set(this.m_form.tag, inputName, {tagName: '', tagContent: ''})
+      this.m_inputArray.push(inputName)
+    },
+    m_removeItem(index) {
+      let removeInputName = this.m_inputArray.splice(index, 1)[0]
+      delete this.m_form.tag[removeInputName]
     },
     getDeploymentList() {
       this.$axios.get(`${this.$baseURL}/api/v1/deployments/list`)
@@ -282,6 +257,7 @@ export default {
         res => {
           console.log(res.data)
           this.modify = false
+          this.$router.go(0)
         }
       )
     }

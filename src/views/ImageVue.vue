@@ -30,7 +30,7 @@
               <el-form-item label="上传方式">
                 <el-radio-group v-model="form.uploadType">
                   <el-radio-button label="公共平台拉取"></el-radio-button>
-                  <el-radio-button label="镜像上传"></el-radio-button>
+                  <el-radio-button label="git仓库构建"></el-radio-button>
                   <el-radio-button label="dockerfile上传"></el-radio-button>
                 </el-radio-group>
               </el-form-item>      
@@ -38,8 +38,9 @@
                 <el-input v-model="form.imageName" placeholder="镜像名称"/>
                 <el-input v-model="form.imageVersion" placeholder="镜像版本"/>
               </el-form-item>
-              <el-form-item v-if="form.uploadType==='镜像上传'">
+              <el-form-item v-if="form.uploadType==='git仓库构建'">
                 <el-input v-model="form.uploadURL" placeholder="URL"/>
+                <el-input v-model="form.imageVersion" placeholder="标签"/>
               </el-form-item>
               <!-- <el-form-item v-if="form.uploadType==='dockerfile上传'">
                 <el-upload
@@ -158,6 +159,18 @@ export default {
             'Content-Type': 'application/json'
           }
         })
+        .then(
+          res => {
+            console.log(res)
+            this.addImage = false
+            this.$router.go(0)
+          }
+        )
+      } else if (this.form.uploadType == 'git仓库构建') {
+        let file_formdata = new FormData()
+        file_formdata.append('path', this.form.uploadURL);
+        file_formdata.append('tag', this.form.imageVersion)
+        this.$axios.post(`${this.$baseURL}/api/v1/images/build`, file_formdata)
         .then(
           res => {
             console.log(res)

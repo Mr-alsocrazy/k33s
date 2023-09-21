@@ -164,6 +164,7 @@ export default {
             console.log(res.data)
             this.$message('创建成功')
             this.addDeployment = false
+            this.$router.go(0)
           }
         }
       )
